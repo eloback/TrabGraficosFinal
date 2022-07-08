@@ -1,0 +1,25 @@
+# Create as many materials as desired
+# Each is referenced by name before the faces it applies to in the obj file
+
+newmtl material0
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Tr 1.000000
+illum 1
+Ns 0.000000
+map_Kd capsule0.jpg
+
+newmtl shinyred
+Ka  0.1985  0.0000  0.0000
+Kd  0.5921  0.0167  0.0000
+Ks  0.5973  0.2083  0.2083
+illum 2
+Ns 100.2235
+
+newmtl clearblue
+Ka  0.0394  0.0394  0.3300
+Kd  0.1420  0.1420  0.9500
+illum 1
+Tr 0.4300
+
