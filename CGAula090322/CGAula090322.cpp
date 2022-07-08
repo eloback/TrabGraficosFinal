@@ -1,7 +1,7 @@
 /*
 author: Eduardo Loback, Enzo Redivo
-repo: https://github.com/eloback/comp-grafica-T1
-
+repo: https://github.com/eloback/TrabGraficosFinal
+presentation: https://www.youtube.com/watch?v=z_tJpdExjr0
 */
 
 #include <iostream>
@@ -315,26 +315,6 @@ void generateNewIndexes() {
 	vertices = newVertices;
 	textCoords = newTextCoords;
 	normals = newNormals;
-}
-
-void createVAOfromVerticesNormalsTexts() {
-	glGenBuffers(1, &verticesBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3) + textCoords.size() * sizeof(vec2) + normals.size() * sizeof(vec3), NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vec3), &vertices[0]);
-	glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3), textCoords.size() * sizeof(vec2), &textCoords[0]);
-	glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3) + textCoords.size() * sizeof(vec2), normals.size() * sizeof(vec3), &normals[0]);
-
-	size_t tam = sizeof(vec3) + sizeof(vec2) + sizeof(vec3);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, tam, (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, tam, (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, tam, (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(2);
 }
 
 void createVAOFromBufferInfo()
@@ -707,10 +687,10 @@ BitMapFile* getBMPData(string filename)
 	infile.seekg(10);
 	infile.read((char*)&offset, 4);
 
-	// Pegar o tamanho do cabeçalho do bmp.
+	// Pegar o tamanho do cabeï¿½alho do bmp.
 	infile.read((char*)&headerSize, 4);
 
-	// Pegar a altura e largura da imagem no cabeçalho do bmp.
+	// Pegar a altura e largura da imagem no cabeï¿½alho do bmp.
 	infile.seekg(18);
 	infile.read((char*)&bmp->sizeX, 4);
 	infile.read((char*)&bmp->sizeY, 4);
@@ -719,7 +699,7 @@ BitMapFile* getBMPData(string filename)
 	size = bmp->sizeX * bmp->sizeY * 24;
 	bmp->data = new unsigned char[size];
 
-	// Ler a informação da imagem.
+	// Ler a informaï¿½ï¿½o da imagem.
 	infile.seekg(offset);
 	infile.read((char*)bmp->data, size);
 
