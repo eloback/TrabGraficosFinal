@@ -27,6 +27,10 @@ struct vec3 {
 	
 	vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 	vec3(float x) : x(x), y(x), z(x) {}
+
+	bool operator==(const vec3& v) const {
+		return x == v.x && y == v.y && z == v.z;
+	}
 };
 
 
@@ -35,6 +39,10 @@ struct vec2 {
 
 	vec2(float x, float y) : x(x), y(y) {}
 	vec2(float x) : x(x), y(x) {}
+
+	bool operator==(const vec2& v) const {
+		return x == v.x && y == v.y;
+	}
 };
 
 struct ivec3 {
@@ -42,6 +50,10 @@ struct ivec3 {
 	
 	ivec3(int v, int t, int n) : v(v), t(t), n(n) {}
 	ivec3(int v) : v(v), t(v), n(v) {}
+
+	bool operator==(const ivec3& other) const {
+		return v == other.v && t == other.t && n == other.n;
+	}
 };
 
 // mM, mV, mP
@@ -181,7 +193,6 @@ vec3 mov{ 0, 0, 0 };
 enum mode { cam = 0, movement = 1, rotation = 2, lightPos = 3 };
 mode actual = cam;
 bool rotating = true;
-bool spotlight = false;
 bool activeLights[3] = { true, false, false };
 
 GLuint v, f; // vertex shader and fragment shader
@@ -190,24 +201,26 @@ GLuint p;
 GLuint VAO;
 GLuint verticesBuffer, textCoordsBuffer, normalsBuffer, facesBuffer;
 
+int numberOfFaces = 3;
+
+// returns GL_QUADS or GL_TRIANGLES
+GLenum drawMode() {
+	if (numberOfFaces < 5) {
+		return GL_TRIANGLES;
+	}
+	else {
+		return GL_QUADS;
+	}
+}
+
+GLenum draw_mode;
+
 static unsigned int texturas[2];
 
 float intensidadeLuzAmbiente = 0.1;
 float intensidadeLuzDifusa = 0.9;
 float corLuz[3] = { 1, 1, 1 };
 float posLuz[3] = { 0, 1, 0.25 };
-
-unsigned int _model;
-float rot;
-
-vec3 diferrence(vec3 a, vec3 b) {
-    return vec3{ a.x - b.x, a.y - b.y, a.z - b.z };
-}
-
-vec3 sum(vec3 a, vec3 b) {
-    return vec3{ a.x + b.x, a.y + b.y, a.z + b.z };
-}
-
 
 std::vector<string> split(string str, char delimiter);
 void createFace(string line);
@@ -217,7 +230,6 @@ void loadObj(std::string fileName);
 void reshape(int w, int h);
 void createVAOFromBufferInfo();
 void setShaders();
-void light();
 void display(void);
 void timer(int value);
 void Initialize();
@@ -246,6 +258,7 @@ int main(int argc, char** argv)
     glutKeyboardFunc(keyboard);
     glutTimerFunc(10, timer, 0);
     loadObj("data/capsule.obj"); // filename
+	draw_mode = drawMode();
 	generateNewIndexes();
     setShaders();
     glutMainLoop();
@@ -284,14 +297,13 @@ char* readStringFromFile(char* fn) {
     }
     return content;
 }
-
-// generate new vertices, textcoords and normals with indexes
+// generate new vertices, textcoords and normals with the indexes
 void generateNewIndexes() {
 	vector<vec3> newVertices;
 	vector<vec2> newTextCoords;
 	vector<vec3> newNormals;
-    for (unsigned int i = 0; i < indexes.size(); i++) {
-        unsigned int vertexIndex = indexes[i].v;
+	for (unsigned int i = 0; i < indexes.size(); i++) {
+		unsigned int vertexIndex = indexes[i].v;
 		unsigned int normalIndex = indexes[i].n;
 		newVertices.push_back(vertices[vertexIndex]);
 		newNormals.push_back(normals[normalIndex]);
@@ -468,7 +480,7 @@ void display(void)
 	glBindTexture(GL_TEXTURE_2D, texturas[1]);
 	
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	glDrawArrays(draw_mode, 0, vertices.size());
 
 	glPopMatrix();
 	glEnd();
@@ -539,6 +551,7 @@ std::vector<string> split(string str, char delimiter) {
 void createFace(string line) {
     std::vector<std::string> tokens = split(line, ' ');
     const int size = tokens.size();
+	numberOfFaces = size;
     for (int i = 1; i < size; i++) {
         std::vector<std::string> sVertex = split(tokens[i], '/');
         int sVertexSize = sVertex.size();
@@ -563,7 +576,6 @@ vec3 parseVector3(string line) {
 }
 
 void loadObj(std::string fileName) {
-    _model = glGenLists(1);
     glPointSize(2.0);
     std::ifstream file;
     file.open(fileName.c_str());
@@ -672,10 +684,10 @@ void keyboard(unsigned char key, int x, int y) {
 		intensidadeLuzAmbiente += 0.05;
 		break;
 	case ',':
-		scale_amount -= 0.05;
+		scale_amount -= 0.01;
 		break;
 	case '.':
-		scale_amount += 0.05;
+		scale_amount += 0.01;
 		break;
 	}
 
